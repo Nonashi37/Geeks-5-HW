@@ -4,7 +4,7 @@ from .views import (
     category_detail_api_view,
     product_list_api_view,
     product_detail_api_view,
-    product_reviews_list_api_view,  # <--- Don't forget this import!
+    product_reviews_list_api_view,  
     review_list_api_view,
     review_detail_api_view,
 )
