@@ -1,20 +1,33 @@
 from rest_framework import serializers
 from .models import Category, Product, Review
 
-
 class CategorySerializer(serializers.ModelSerializer):
+    # This field will be populated by our 'annotate' in the view
+    products_count = serializers.IntegerField(read_only=True)
+
     class Meta:
         model = Category
-        fields = '__all__'
-
-
-class ProductSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Product
-        fields = '__all__'
+        fields = 'id name products_count'.split()
 
 
 class ReviewSerializer(serializers.ModelSerializer):
     class Meta:
         model = Review
-        fields = '__all__'
+        fields = 'id text stars'.split()
+
+
+class ProductSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Product
+        fields = 'id title description price category'.split()
+
+
+class ProductReviewSerializer(serializers.ModelSerializer):
+    # Nested reviews - this uses the 'related_name' from your ForeignKey
+    reviews = ReviewSerializer(many=True, read_only=True)
+    # This will be populated by Avg annotation in the view
+    average_rating = serializers.FloatField(read_only=True)
+
+    class Meta:
+        model = Product
+        fields = 'id title reviews average_rating'.split()

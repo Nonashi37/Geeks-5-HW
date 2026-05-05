@@ -1,61 +1,72 @@
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework import status
-
+from django.db.models import Avg, Count
 from django.shortcuts import get_object_or_404
 
 from .models import Category, Product, Review
-from .serializers import CategorySerializer, ProductSerializer, ReviewSerializer
+from .serializers import (
+    CategorySerializer, 
+    ProductSerializer, 
+    ReviewSerializer, 
+    ProductReviewSerializer
+)
 
-
-# CATEGORY
-
+# --- CATEGORY ---
 
 @api_view(['GET'])
 def category_list_api_view(request):
-    categories = Category.objects.all()
-    data = CategorySerializer(categories, many=True).data
-    return Response(data)
-
+    # Let the DB count the products for us
+    categories = Category.objects.annotate(products_count=Count('product'))
+    serializer = CategorySerializer(categories, many=True)
+    return Response(serializer.data)
 
 @api_view(['GET'])
 def category_detail_api_view(request, id):
+    # Detail views usually don't need the count, but you can add it if needed
     category = get_object_or_404(Category, id=id)
-    data = CategorySerializer(category).data
-    return Response(data)
+    serializer = CategorySerializer(category)
+    return Response(serializer.data)
 
 
-
-# PRODUCT
-
+# --- PRODUCT ---
 
 @api_view(['GET'])
 def product_list_api_view(request):
     products = Product.objects.all()
-    data = ProductSerializer(products, many=True).data
-    return Response(data)
+    serializer = ProductSerializer(products, many=True)
+    return Response(serializer.data)
 
+@api_view(['GET'])
+def product_reviews_list_api_view(request):
+    """
+    New endpoint: /api/v1/products/reviews/
+    Returns products with their reviews and average stars.
+    """
+    # .prefetch_related('reviews') prevents the "N+1" query problem!
+    products = Product.objects.prefetch_related('reviews').annotate(
+        average_rating=Avg('reviews__stars')
+    )
+    serializer = ProductReviewSerializer(products, many=True)
+    return Response(serializer.data)
 
 @api_view(['GET'])
 def product_detail_api_view(request, id):
     product = get_object_or_404(Product, id=id)
-    data = ProductSerializer(product).data
-    return Response(data)
+    serializer = ProductSerializer(product)
+    return Response(serializer.data)
 
 
-
-# REVIEW
-
+# --- REVIEW ---
 
 @api_view(['GET'])
 def review_list_api_view(request):
     reviews = Review.objects.all()
-    data = ReviewSerializer(reviews, many=True).data
-    return Response(data)
-
+    serializer = ReviewSerializer(reviews, many=True)
+    return Response(serializer.data)
 
 @api_view(['GET'])
 def review_detail_api_view(request, id):
     review = get_object_or_404(Review, id=id)
-    data = ReviewSerializer(review).data
-    return Response(data)
+    serializer = ReviewSerializer(review)
+    return Response(serializer.data)

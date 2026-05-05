@@ -1,5 +1,5 @@
 from django.db import models
-
+from django.core.validators import MinValueValidator, MaxValueValidator
 
 class Category(models.Model):
     name = models.CharField(max_length=100)
@@ -27,6 +27,10 @@ class Review(models.Model):
         'Product',
         on_delete=models.CASCADE,
         related_name='reviews'
+    )
+    stars = models.PositiveIntegerField(
+        default=5, 
+        validators=[MinValueValidator(1), MaxValueValidator(5)]
     )
 
     def __str__(self):
