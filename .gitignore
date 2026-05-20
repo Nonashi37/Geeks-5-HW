@@ -1,5 +1,19 @@
-.venv/
-__pycache__/
-*.pyc
-db.sqlite3
+# Django local settings / environment variables
 .env
+    
+# Python bytecode and virtual environments
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+env/
+   
+# SQLite local DB (if you still have it lying around)
+*.sqlite3
+    
+# IDEs and Editors
+.vscode/
+.idea/
+  
+
+  
