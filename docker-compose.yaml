@@ -5,31 +5,30 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data/
     environment:
-      - POSTGRES_DB=shop_db
-      - POSTGRES_USER=shop_user
-      - POSTGRES_PASSWORD=hash_secure
+      POSTGRES_DB: shop_db
+      POSTGRES_USER: shop_user
+      POSTGRES_PASSWORD: hash_secure
     ports:
       - "5432:5432"
 
   web:
     build: .
     container_name: shop_django_api
-    # This command waits for the DB, runs migrations, then starts the server
     command: >
-      sh -c "python manage.py migrate &&
+      sh -c "sleep 5 &&
+             python manage.py migrate &&
              python manage.py runserver 0.0.0.0:8000"
     volumes:
       - .:/app
     ports:
       - "8000:8000"
+    env_file:
+      - .env
     environment:
-      - SECRET_KEY=${SECRET_KEY}  
-      - DEBUG=${DEBUG}
-      - DB_NAME=${DB_NAME}
-      - DB_USER=${DB_USER}
-      - DB_PASSWORD=${DB_PASSWORD}
-      - DB_HOST=db
-      - DB_PORT=5432
+      DB_HOST: dbw
+      DB_PORT: 5432
+    depends_on:
+      - db
 
 volumes:
   postgres_data:
