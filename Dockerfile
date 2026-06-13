@@ -26,3 +26,6 @@ EXPOSE 8000
 
 # 8. Default command to run our server
 CMD ["python", "manage.py", "runserver", "0.0.0.0:8000"]
+
+
+# just to ckeck
